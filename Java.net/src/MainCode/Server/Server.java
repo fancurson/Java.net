@@ -1,22 +1,21 @@
 
 package MainCode.Server;
 
+import MainCode.Protocol;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
-import java.util.Vector;
-
 
 public class Server {
     static public void main(String args[])
     {
-        try
+        try (ServerSocket server = new ServerSocket(Protocol.PORT))
         {
-            ServerSocket server = new ServerSocket(8000);
+            System.err.println("Server started");
             server.accept();
-            server.close();
+
         } catch (IOException e) {
             System.out.println("Server don't start");
             throw new RuntimeException(e);
@@ -32,12 +31,6 @@ class ServerThread extends Thread {
 	private ObjectInputStream 	is;
 	private InetAddress 		addr;
 
-//	private String userNic = null;
-//	private String userFullName;
-
-//	private Object syncLetters = new Object();
-//	private Vector<String> letters = null;
-
     /**
     *   Disconnect bool
      */
@@ -51,7 +44,50 @@ class ServerThread extends Thread {
         this.setDaemon(true);
     }
     public void run(){
+        try {
 
+        }
+        catch (Exception exception){
+            System.err.println(exception.toString());
+        }
+
+
+//        try {
+//            while ( true ) {
+//                Message msg = null;
+//                try {
+//                    msg = ( Message ) is.readObject();
+//                } catch (IOException e) {
+//                } catch (ClassNotFoundException e) {
+//                }
+//                if (msg != null) switch ( msg.getID() ) {
+//
+//                    case Protocol.CMD_CONNECT:
+//                        if ( !connect( (MessageConnect) msg ))
+//                            return;
+//                        break;
+//
+//                    case Protocol.CMD_DISCONNECT:
+//                        return;
+//
+//                    case Protocol.CMD_USER:
+//                        user(( MessageUser ) msg);
+//                        break;
+//
+//                    case Protocol.CMD_CHECK_MAIL:
+//                        checkMail(( MessageCheckMail ) msg );
+//                        break;
+//
+//                    case Protocol.CMD_LETTER:
+//                        letter(( MessageLetter ) msg );
+//                        break;
+//                }
+//            }
+//        } catch (IOException e) {
+//            System.err.print("Disconnect...");
+//        } finally {
+//            disconnect();
+//        }
     }
 
     public void disconnect() {
