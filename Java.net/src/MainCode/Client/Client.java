@@ -3,6 +3,7 @@ package MainCode.Client;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import MainCode.*;
@@ -24,9 +25,10 @@ public class Client
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             System.out.println("Connected to the server.");
-        } catch (Exception e)
-        {
+        }
+        catch (Exception e) {
             System.out.println(e);
+
         }
     }
 
@@ -83,30 +85,31 @@ public class Client
      * Запуск клиента
      * @param args NULL
      */
-    static public void main(String args[])
-    {
-        if ( args.length != 0 ) {
-            System.err.println(	"Invalid number of arguments\n" + "Use: " );
+    static public void main(String args[]) {
+        if (args.length != 0) {
+            System.err.println("Invalid number of arguments\n" + "Usage without arguments ");
             warningBeforeLeaveProgram();
             return;
         }
         Client mainClient = new Client();
-        try{
+        if (mainClient.clientSocket == null)
+        {
+            warningBeforeLeaveProgram();
+            return;
+        }
+        try {
             BufferedReader consileInput = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Enter a request (or enter exit  to close connection)");
-            while (true)
-            {
+            while (true) {
                 String request = consileInput.readLine();
-                if (request.equalsIgnoreCase("exit"))
-                {
+                if (request.equalsIgnoreCase("exit")) {
                     break;
                 }
                 mainClient.sendRequestGetResponse(request);
             }
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println(e);
-        }finally {
+        } finally {
             mainClient.closeConnection();
         }
     }

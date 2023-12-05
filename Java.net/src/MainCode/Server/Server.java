@@ -12,7 +12,8 @@ public class Server {
         try (ServerSocket server = new ServerSocket(Protocol.PORT))
         {
             while (true) {
-                Socket sock = accept( server );
+//                Socket sock = accept( server );
+                Socket sock = server.accept();
                 if ( sock != null ){
                     System.err.println("Server started");
                     ServerThread serverThread = new ServerThread(sock);
@@ -61,14 +62,14 @@ class ServerThread extends Thread {
     private Socket sock;
     private PrintWriter os;
     private BufferedReader is;
-    private InetAddress addr;
+    private final InetAddress addr;
     private boolean disconnected = false;
     public ServerThread(Socket s) throws IOException {
         sock = s;
         s.setSoTimeout(1000);
         os = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
         is = new BufferedReader(new InputStreamReader(s.getInputStream()));
-      addr = s.getInetAddress();
+        addr = s.getInetAddress();
         this.setDaemon(true);
     }
     public void run(){
@@ -80,12 +81,15 @@ class ServerThread extends Thread {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
+                    os.println(line);
                 }
             }
         }
         catch (Exception exception){
             System.err.println(exception.toString());
+        }
+        finally {
+            disconnect();
         }
     }
 
