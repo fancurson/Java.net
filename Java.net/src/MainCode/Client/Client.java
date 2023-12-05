@@ -6,27 +6,23 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import MainCode.*;
-import csdev.Protocol;
 
 public class Client
 {
-    // Сокет клиента
     private Socket clientSocket;
-    // Для записи/считывания
     private PrintWriter out;
     private BufferedReader in;
 
-
-    //Конструктор с настройкой подключения клиента
-    // P.S( Мне тут все сокеты находит само, но можно спараметрами где будут пользовательские сокеты)
-    Client(/*String serverAdress, int serverPort*/)
+    /**
+     * Конструктор с настройкой подключения клиента
+     *
+     */
+    Client()
     {
         try {
             clientSocket = new Socket(InetAddress.getLocalHost(), Protocol.PORT);
-            //clientSocket = new Socket(serverAdress, serverPort);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            /////// Cообщение чтобы знать, смысловой нагрузки не несет
             System.out.println("Connected to the server.");
         } catch (Exception e)
         {
@@ -34,8 +30,27 @@ public class Client
         }
     }
 
-    // Параметр - это данные отправляемые на сервер
-    // Функция как отправляет данные, так и принимает их
+    /**
+     * @param serverAdress пользовательский сокет
+     * @param serverPort пользовательский адресс порта
+     */
+    Client(String serverAdress, int serverPort)
+    {
+        try {
+            clientSocket = new Socket(serverAdress, serverPort);
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            System.out.println("Connected to the server.");
+        } catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * Функция как отправляет данные, так и принимает их
+     * @param request это данные отправляемые на сервер
+     */
     public void sendRequestGetResponse(String request)
     {
         try{
@@ -49,7 +64,9 @@ public class Client
         }
     }
 
-    // Закрытие связи
+    /**
+     * Закрытие клиента
+     */
     public void closeConnection()
     {
         try{
@@ -62,32 +79,17 @@ public class Client
         }
     }
 
-    // Функция для оповещения перед закрытием программы если все "cломалось"
-    // P.S используется перед завершением всей программы
-    // P.S.2 после нее в коде нужно использовать return для закрытия программы, сама она ее не закроет
-    public void WarningBeforeLeaveProgram()
-    {
-        System.out.println("Please press any key to end programm...");
-        try{
-            System.in.read();
-        }catch (Exception e)
-        {
-            System.out.println(e);
-        }
-    }
-
-
-    //////////////////////////// Запуск клмента
+    /**
+     * Запуск клиента
+     * @param args NULL
+     */
     static public void main(String args[])
     {
-        /*
-        //Я не знаю что должно лежать в массиве Args, кол-во аргументов настрой сам
-        if (args.length < 2 || args.length > 3) {
-			System.err.println(	"Invalid number of arguments\n");
-			WarningBeforeLeaveProgram();
-			return;
-		}
-         */
+        if ( args.length != 0 ) {
+            System.err.println(	"Invalid number of arguments\n" + "Use: " );
+            warningBeforeLeaveProgram();
+            return;
+        }
         Client mainClient = new Client();
         try{
             BufferedReader consileInput = new BufferedReader(new InputStreamReader(System.in));
@@ -108,4 +110,21 @@ public class Client
             mainClient.closeConnection();
         }
     }
+
+    /**
+     * Функция для оповещения перед закрытием программы если все "cломалось"
+     * <p> P.S используется перед завершением всей программы
+     * <p> P.S.2 после нее в коде нужно использовать return для закрытия программы, сама она ее не закроет
+     */
+    static public void warningBeforeLeaveProgram()
+    {
+        System.out.println("Please press any key to end programm...");
+        try{
+            System.in.read();
+        }catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
 }
