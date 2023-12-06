@@ -1,6 +1,8 @@
 
 package MainCode.Server;
 
+import MainCode.CommandMessage;
+import MainCode.CommandOutput;
 import MainCode.Protocol;
 
 import java.io.*;
@@ -58,38 +60,38 @@ public class Server {
 
 class ServerThread extends Thread {
     private Socket sock;
-    private PrintWriter os;
-    private BufferedReader is;
+    private ObjectOutputStream os;
+    private ObjectInputStream is;
     private final InetAddress addr;
     private boolean disconnected = false;
     public ServerThread(Socket s) throws IOException {
         sock = s;
         s.setSoTimeout(1000);
-        os = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-        is = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        os = new ObjectOutputStream(s.getOutputStream());
+        is = new ObjectInputStream(s.getInputStream());
         addr = s.getInetAddress();
         this.setDaemon(true);
     }
     public void run(){
         try {
             while (true){
-                String command = null;
+                CommandMessage commandMessage = null;
                 try {
-                    command = new String(is.readLine());
+                    commandMessage = (CommandMessage) is.readObject();
+                } catch (IOException e){
+                } catch (ClassNotFoundException e){
                 }
-                catch (IOException e){
-                }
-                if (command != null)
+                if (commandMessage != null)
                 {
-                    ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+                    ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", commandMessage.getCommand());
                     Process process = processBuilder.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                     String line;
+                    CommandOutput output = null;
                     while ((line = reader.readLine()) != null ) {
-                        os.println(line);
+                        output.append(line);
                     }
                 }
-
             }
         }
         catch (Exception exception){

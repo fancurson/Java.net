@@ -1,8 +1,6 @@
 package MainCode.Client;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -11,8 +9,8 @@ import MainCode.*;
 public class Client
 {
     private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
+    ObjectOutputStream os;
+    ObjectInputStream is;
 
     /**
      * Конструктор с настройкой подключения клиента
@@ -22,8 +20,8 @@ public class Client
     {
         try {
             clientSocket = new Socket(InetAddress.getLocalHost(), Protocol.PORT);
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            os = new ObjectOutputStream(clientSocket.getOutputStream());
+            is = new ObjectInputStream(clientSocket.getInputStream());
             System.out.println("Connected to the server.");
         }
         catch (Exception e) {
@@ -40,8 +38,8 @@ public class Client
     {
         try {
             clientSocket = new Socket(serverAddress, serverPort);
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//            out = new PrintWriter(clientSocket.getOutputStream(), true);
+//            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             System.out.println("Connected to the server.");
         } catch (Exception e)
         {
@@ -56,12 +54,10 @@ public class Client
     public void sendRequestGetResponse(String request)
     {
         try{
-            out.println(request);
-            String response;
+            CommandMessage objRequest = new CommandMessage(request);
+            os.writeObject(objRequest);
+            CommandOutput objOut = (CommandOutput) is.readObject();
             System.out.println("Server response:");
-            while ((response = in.readLine()) != null){
-                System.out.println(response);
-            }
             System.out.println("End of server response:");
         }catch (Exception e)
         {
@@ -76,8 +72,8 @@ public class Client
     {
         try{
             clientSocket.close();
-            in.close();
-            out.close();
+            is.close();
+            os.close();
         }catch (Exception e)
         {
             System.out.println(e);
@@ -101,10 +97,10 @@ public class Client
             return;
         }
         try {
-            BufferedReader consileInput = new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Enter a request (or enter exit  to close connection)");
             while (true) {
-                String request = consileInput.readLine();
+                String request = consoleInput.readLine();
                 if (request.equalsIgnoreCase("exit")) {
                     break;
                 }
