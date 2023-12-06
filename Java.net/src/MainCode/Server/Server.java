@@ -12,13 +12,11 @@ public class Server {
         try (ServerSocket server = new ServerSocket(Protocol.PORT))
         {
             while (true) {
-//                Socket sock = accept( server );
-                Socket sock = server.accept();
+                Socket sock = accept( server );
                 if ( sock != null ){
-                    System.err.println("Server started");
                     ServerThread serverThread = new ServerThread(sock);
                     serverThread.start();
-
+                    System.err.println("Server started");
                 }
                 if (Server.getStopFlag()) {
                     break;
@@ -75,14 +73,23 @@ class ServerThread extends Thread {
     public void run(){
         try {
             while (true){
-                String command= new String(is.readLine());
-                ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
-                Process process = processBuilder.start();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    os.println(line);
+                String command = null;
+                try {
+                    command = new String(is.readLine());
                 }
+                catch (IOException e){
+                }
+                if (command != null)
+                {
+                    ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+                    Process process = processBuilder.start();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null ) {
+                        os.println(line);
+                    }
+                }
+
             }
         }
         catch (Exception exception){

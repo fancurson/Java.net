@@ -33,13 +33,13 @@ public class Client
     }
 
     /**
-     * @param serverAdress пользовательский сокет
+     * @param serverAddress пользовательский сокет
      * @param serverPort пользовательский адресс порта
      */
-    Client(String serverAdress, int serverPort)
+    Client(String serverAddress, int serverPort)
     {
         try {
-            clientSocket = new Socket(serverAdress, serverPort);
+            clientSocket = new Socket(serverAddress, serverPort);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             System.out.println("Connected to the server.");
@@ -57,9 +57,12 @@ public class Client
     {
         try{
             out.println(request);
-            String response = in.readLine();
-            System.out.println("Server response: " + response);
-
+            String response;
+            System.out.println("Server response:");
+            while ((response = in.readLine()) != null){
+                System.out.println(response);
+            }
+            System.out.println("End of server response:");
         }catch (Exception e)
         {
             System.out.println(e);
