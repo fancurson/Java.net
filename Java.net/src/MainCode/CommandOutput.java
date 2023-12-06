@@ -4,13 +4,19 @@ import java.io.Serializable;
 
 public class CommandOutput implements Serializable {
     String output;
-    CommandOutput(){
+    public CommandOutput(){
         assert (false);
     }
-    public void append(String s){
-        output += s;
-    }
-    CommandOutput(String out){
+    public CommandOutput(String out){
         output = out;
+    }
+    public void append(String s){
+        output += s + "\n";
+    }
+    public void setOutput(String output){
+        this.output = output;
+    }
+    public String getOutput(){
+        return output;
     }
 }

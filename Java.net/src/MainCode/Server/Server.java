@@ -83,14 +83,8 @@ class ServerThread extends Thread {
                 }
                 if (commandMessage != null)
                 {
-                    ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", commandMessage.getCommand());
-                    Process process = processBuilder.start();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    String line;
-                    CommandOutput output = null;
-                    while ((line = reader.readLine()) != null ) {
-                        output.append(line);
-                    }
+                    CommandOutput output = getCommandOutput(commandMessage);
+                    os.writeObject(output);
                 }
             }
         }
@@ -100,6 +94,18 @@ class ServerThread extends Thread {
         finally {
             disconnect();
         }
+    }
+
+    private static CommandOutput getCommandOutput(CommandMessage commandMessage) throws IOException {
+        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", commandMessage.getCommand());
+        Process process = processBuilder.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line;
+        CommandOutput output = new CommandOutput(new String(""));
+        while ((line = reader.readLine()) != null ) {
+            output.append(line);
+        }
+        return output;
     }
 
     public void disconnect() {

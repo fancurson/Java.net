@@ -54,11 +54,10 @@ public class Client
     public void sendRequestGetResponse(String request)
     {
         try{
-            CommandMessage objRequest = new CommandMessage(request);
-            os.writeObject(objRequest);
-            CommandOutput objOut = (CommandOutput) is.readObject();
-            System.out.println("Server response:");
-            System.out.println("End of server response:");
+            CommandMessage cmdRequest = new CommandMessage(request);
+            os.writeObject(cmdRequest);
+            CommandOutput cmdOut = (CommandOutput) is.readObject();
+            System.out.println("Server response:\n" + cmdOut.getOutput() + "End of server response:");
         }catch (Exception e)
         {
             System.out.println(e);
