@@ -11,6 +11,11 @@ import java.net.*;
 public class Server {
     static public void main(String args[])
     {
+        try {
+            System.out.println(InetAddress.getLocalHost());
+        } catch (Exception e){
+            System.out.println(e.toString());
+        }
         try (ServerSocket server = new ServerSocket(Protocol.PORT))
         {
             while (true) {

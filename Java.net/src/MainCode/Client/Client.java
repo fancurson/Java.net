@@ -3,6 +3,7 @@ package MainCode.Client;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import MainCode.*;
 
@@ -32,14 +33,13 @@ public class Client
 
     /**
      * @param serverAddress пользовательский сокет
-     * @param serverPort пользовательский адресс порта
      */
-    Client(String serverAddress, int serverPort)
+    Client(String serverAddress)
     {
         try {
-            clientSocket = new Socket(serverAddress, serverPort);
-//            out = new PrintWriter(clientSocket.getOutputStream(), true);
-//            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            clientSocket = new Socket(serverAddress, Protocol.PORT);
+            os = new ObjectOutputStream(clientSocket.getOutputStream());
+            is = new ObjectInputStream(clientSocket.getInputStream());
             System.out.println("Connected to the server.");
         } catch (Exception e)
         {
@@ -84,12 +84,17 @@ public class Client
      * @param args NULL
      */
     static public void main(String args[]) {
-        if (args.length != 0) {
-            System.err.println("Invalid number of arguments\n" + "Usage without arguments ");
+        if (args.length > 1) {
+            System.err.println("Invalid number of arguments\n" + "Usage: command <Ip> ");
             warningBeforeLeaveProgram();
             return;
         }
-        Client mainClient = new Client();
+        Client mainClient;
+        if (args.length == 0) {
+            mainClient = new Client();
+        } else {
+            mainClient = new Client(args[0]);
+        }
         if (mainClient.clientSocket == null)
         {
             warningBeforeLeaveProgram();
