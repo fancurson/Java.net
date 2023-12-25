@@ -1,9 +1,7 @@
 package MainCode.Client;
 
 import java.io.*;
-import java.net.ConnectException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import MainCode.*;
 
@@ -54,9 +52,9 @@ public class Client
     public void sendRequestGetResponse(String request)
     {
         try{
-            CommandMessage cmdRequest = new CommandMessage(request);
+            CommandInputMessage cmdRequest = new CommandInputMessage(request);
             os.writeObject(cmdRequest);
-            CommandOutput cmdOut = (CommandOutput) is.readObject();
+            CommandOutputMessage cmdOut = (CommandOutputMessage) is.readObject();
             System.out.println("Server response:\n" + cmdOut.getOutput() + "End of server response:");
         }catch (Exception e)
         {

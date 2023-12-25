@@ -1,8 +1,8 @@
 
 package MainCode.Server;
 
-import MainCode.CommandMessage;
-import MainCode.CommandOutput;
+import MainCode.CommandInputMessage;
+import MainCode.CommandOutputMessage;
 import MainCode.Protocol;
 
 import java.io.*;
@@ -80,15 +80,15 @@ class ServerThread extends Thread {
     public void run(){
         try {
             while (true){
-                CommandMessage commandMessage = null;
+                CommandInputMessage commandInputMessage = null;
                 try {
-                    commandMessage = (CommandMessage) is.readObject();
+                    commandInputMessage = (CommandInputMessage) is.readObject();
                 } catch (IOException e){
                 } catch (ClassNotFoundException e){
                 }
-                if (commandMessage != null)
+                if (commandInputMessage != null)
                 {
-                    CommandOutput output = getCommandOutput(commandMessage);
+                    CommandOutputMessage output = getCommandOutput(commandInputMessage);
                     os.writeObject(output);
                 }
             }
@@ -101,13 +101,17 @@ class ServerThread extends Thread {
         }
     }
 
-    private static CommandOutput getCommandOutput(CommandMessage commandMessage) throws IOException {
-        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", commandMessage.getCommand());
+    private static CommandOutputMessage getCommandOutput(CommandInputMessage commandInputMessage) throws IOException {
+        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", commandInputMessage.getCommand());
         Process process = processBuilder.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         String line;
-        CommandOutput output = new CommandOutput(new String(""));
+        CommandOutputMessage output = new CommandOutputMessage(new String(""));
         while ((line = reader.readLine()) != null ) {
+            output.append(line);
+        }
+        while ((line = errorReader.readLine()) != null ) {
             output.append(line);
         }
         return output;

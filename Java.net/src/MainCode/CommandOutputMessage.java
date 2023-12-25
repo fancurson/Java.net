@@ -1,13 +1,15 @@
 package MainCode;
 
 import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
 
-public class CommandOutput implements Serializable {
+@XmlRootElement
+public class CommandOutputMessage extends CommandMessage implements Serializable {
     String output;
-    public CommandOutput(){
+    public CommandOutputMessage(){
         assert (false);
     }
-    public CommandOutput(String out){
+    public CommandOutputMessage(String out){
         output = out;
     }
     public void append(String s){
