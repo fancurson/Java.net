@@ -20,13 +20,26 @@ public class SchemaGenerator {
         private File file;
         public XmlScOutResolver(String baseDirName, String className) throws IOException
         {
-            file = new File(baseDirName, className);
-            file.mkdirs();
+            file = new File(baseDirName, className + ".xml");
+            file.getParentFile().mkdirs();
+            file.createNewFile();
         }
 
         public Result createOutput(String namespaceUri, String suggestedFileName ) throws IOException
         {
-            return new StreamResult(new File(file.getParent(), file.getName()));
+            return new StreamResult(file);
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            createXmlSchema("schema" + File.separator, CommandOutputMessage.class);
+            createXmlSchema("schema" + File.separator, CommandInputMessage.class);
+//            createXmlSchema("schema" + File.separator, CommandOutputMessage.class);
+//            createXmlSchema("schema" + File.separator, CommandOutputMessage.class);
+        }
+        catch (JAXBException jaxbException){
+        } catch (IOException ioException) {
         }
     }
 }

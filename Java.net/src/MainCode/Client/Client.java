@@ -100,10 +100,10 @@ public class Client
         }
         try {
             BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Enter a request (or enter exit  to close connection)");
+            System.out.println("Enter a request (or enter \"exit client\" to close connection)");
             while (true) {
                 String request = consoleInput.readLine();
-                if (request.equalsIgnoreCase("exit")) {
+                if (request.equalsIgnoreCase("exit client")) {
                     break;
                 }
                 mainClient.sendRequestGetResponse(request);

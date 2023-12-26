@@ -108,10 +108,10 @@ class ServerThread extends Thread {
         BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         String line;
         CommandOutputMessage output = new CommandOutputMessage(new String(""));
-        while ((line = reader.readLine()) != null ) {
+        while ((line = errorReader.readLine()) != null ) {
             output.append(line);
         }
-        while ((line = errorReader.readLine()) != null ) {
+        while ((line = reader.readLine()) != null ) {
             output.append(line);
         }
         return output;
